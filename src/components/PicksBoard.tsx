@@ -124,7 +124,7 @@ export function PicksBoard({ teams, locked, deadlineLabel }: PicksBoardProps) {
         ) : null}
       </section>
 
-      <div className="sticky top-0 z-20 -mx-4 border-y border-slate-800 bg-slate-950/95 px-4 py-3 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0">
+      <div>
         <div className="grid gap-3 lg:grid-cols-3">
           {PICK_CATEGORIES.map((category) => (
             <PickCategory
