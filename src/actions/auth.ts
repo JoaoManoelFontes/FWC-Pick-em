@@ -1,9 +1,8 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { hasSupabaseEnv } from "@/lib/supabase/env";
+import { getSiteUrl, hasSupabaseEnv } from "@/lib/supabase/env";
 
 export async function loginAction(formData: FormData) {
   if (!hasSupabaseEnv()) {
@@ -16,12 +15,12 @@ export async function loginAction(formData: FormData) {
     redirect("/login?error=Informe%20um%20email%20valido.");
   }
 
-  const origin = headers().get("origin") ?? "http://localhost:3000";
+  const siteUrl = getSiteUrl();
   const supabase = createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${origin}/auth/callback?next=/picks`
+      emailRedirectTo: `${siteUrl}/auth/callback?next=/picks`
     }
   });
 
