@@ -1,61 +1,31 @@
-create extension if not exists "pgcrypto";
+alter table public.pick_scores drop constraint if exists pick_scores_user_id_fkey;
+alter table public.pick_submissions drop constraint if exists pick_submissions_user_id_fkey;
+alter table public.profiles drop constraint if exists profiles_id_fkey;
 
-create table if not exists public.profiles (
-  id uuid primary key default gen_random_uuid(),
-  nickname text not null unique,
-  email text not null unique,
-  is_admin boolean not null default false,
-  created_at timestamptz not null default now()
-);
+alter table public.profiles
+  alter column id set default gen_random_uuid(),
+  alter column email set not null;
 
-create table if not exists public.teams (
-  id uuid primary key default gen_random_uuid(),
-  name text not null unique,
-  code text not null unique,
-  group_name text not null,
-  flag_emoji text,
-  created_at timestamptz not null default now()
-);
+create unique index if not exists profiles_email_key on public.profiles (email);
 
-create table if not exists public.pick_submissions (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references public.profiles(id) on delete cascade,
-  submitted_at timestamptz not null default now(),
-  unique(user_id)
-);
+alter table public.pick_submissions
+  add constraint pick_submissions_user_id_fkey
+  foreign key (user_id) references public.profiles(id) on delete cascade;
 
-create table if not exists public.picks (
-  id uuid primary key default gen_random_uuid(),
-  submission_id uuid not null references public.pick_submissions(id) on delete cascade,
-  team_id uuid not null references public.teams(id) on delete cascade,
-  pick_type text not null check (
-    pick_type in ('GROUP_WINNER', 'QUALIFIED_NOT_WINNER', 'ELIMINATED')
-  ),
-  created_at timestamptz not null default now(),
-  unique(submission_id, team_id)
-);
+alter table public.pick_scores
+  add constraint pick_scores_user_id_fkey
+  foreign key (user_id) references public.profiles(id) on delete cascade;
 
-create table if not exists public.team_results (
-  team_id uuid primary key references public.teams(id) on delete cascade,
-  group_position int,
-  qualified boolean not null default false,
-  updated_at timestamptz not null default now()
-);
-
-create table if not exists public.pick_scores (
-  pick_id uuid primary key references public.picks(id) on delete cascade,
-  user_id uuid not null references public.profiles(id) on delete cascade,
-  is_correct boolean not null default false,
-  points int not null default 0,
-  calculated_at timestamptz not null default now()
-);
-
-alter table public.profiles enable row level security;
-alter table public.teams enable row level security;
-alter table public.pick_submissions enable row level security;
-alter table public.picks enable row level security;
-alter table public.team_results enable row level security;
-alter table public.pick_scores enable row level security;
+drop policy if exists "profiles_select_own" on public.profiles;
+drop policy if exists "profiles_insert_own" on public.profiles;
+drop policy if exists "profiles_update_own" on public.profiles;
+drop policy if exists "teams_select_authenticated" on public.teams;
+drop policy if exists "pick_submissions_select_own" on public.pick_submissions;
+drop policy if exists "picks_select_own" on public.picks;
+drop policy if exists "profiles_service_role_all" on public.profiles;
+drop policy if exists "teams_select_public" on public.teams;
+drop policy if exists "pick_submissions_service_role_all" on public.pick_submissions;
+drop policy if exists "picks_service_role_all" on public.picks;
 
 create policy "profiles_service_role_all" on public.profiles
   for all to service_role
@@ -75,6 +45,8 @@ create policy "picks_service_role_all" on public.picks
   for all to service_role
   using (true)
   with check (true);
+
+drop function if exists public.submit_user_picks(jsonb, timestamptz);
 
 create or replace function public.submit_user_picks(
   submitted_picks jsonb,

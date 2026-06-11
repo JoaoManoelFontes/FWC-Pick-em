@@ -1,7 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getAppSession } from "@/lib/auth/session";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeNickname } from "@/lib/picks/validation";
 
 export async function saveProfileAction(formData: FormData) {
@@ -15,22 +16,14 @@ export async function saveProfileAction(formData: FormData) {
     redirect("/profile?error=Use%20um%20nickname%20de%202%20a%2030%20caracteres.");
   }
 
-  const supabase = createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const session = getAppSession();
 
-  if (!user) {
+  if (!session) {
     redirect("/login");
   }
 
-  const { error } = await supabase.from("profiles").upsert([
-    {
-      id: user.id,
-      nickname,
-      email: user.email ?? null
-    }
-  ] as never[]);
+  const supabase = createAdminClient();
+  const { error } = await supabase.from("profiles").update({ nickname }).eq("id", session.userId);
 
   if (error) {
     const message = error.code === "23505" ? "Nickname ja esta em uso." : error.message;

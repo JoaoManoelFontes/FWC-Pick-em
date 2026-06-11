@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { PicksBoard } from "@/components/PicksBoard";
 import { PickSummary } from "@/components/PickSummary";
 import { formatBrasiliaDeadline, isPicksLocked } from "@/lib/picks/deadline";
-import { createClient } from "@/lib/supabase/server";
+import { getAppSession } from "@/lib/auth/session";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { PickSubmissionSummary, PickType, Team } from "@/types/picks";
 
 type SubmissionRow = {
@@ -21,19 +22,17 @@ type PickRow = {
 };
 
 export default async function PicksPage() {
-  const supabase = createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const session = getAppSession();
 
-  if (!user) {
+  if (!session) {
     redirect("/login");
   }
 
+  const supabase = createAdminClient();
   const { data: profileData } = await supabase
     .from("profiles")
     .select("id,nickname")
-    .eq("id", user.id)
+    .eq("id", session.userId)
     .maybeSingle();
   const profile = profileData as ProfileRow | null;
 
@@ -47,7 +46,7 @@ export default async function PicksPage() {
   const { data: submissionData } = await supabase
     .from("pick_submissions")
     .select("id,submitted_at")
-    .eq("user_id", user.id)
+    .eq("user_id", session.userId)
     .maybeSingle();
   const submission = submissionData as SubmissionRow | null;
 

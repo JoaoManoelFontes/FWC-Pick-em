@@ -1,29 +1,30 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { saveProfileAction } from "@/actions/profile";
+import { getAppSession } from "@/lib/auth/session";
 
 export default async function ProfilePage({
   searchParams
 }: {
   searchParams: { error?: string; saved?: string };
 }) {
-  const supabase = createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const session = getAppSession();
 
-  if (!user) {
+  if (!session) {
     redirect("/login");
   }
 
-  const { data: profileData } = await supabase.from("profiles").select("nickname").eq("id", user.id).maybeSingle();
-  const profile = profileData as { nickname: string } | null;
+  const supabase = createAdminClient();
+  const { data: profileData } = await supabase.from("profiles").select("email,nickname").eq("id", session.userId).maybeSingle();
+  const profile = profileData as { email: string; nickname: string } | null;
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-73px)] max-w-md items-center px-4 py-10">
       <section className="w-full rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-xl">
         <h1 className="text-2xl font-black uppercase text-slate-50">Nickname</h1>
-        <p className="mt-2 text-sm text-slate-400">Esse sera seu nome publico no bolao.</p>
+        <p className="mt-2 text-sm text-slate-400">
+          Esse sera seu nome publico no bolao{profile?.email ? ` (${profile.email})` : ""}.
+        </p>
         <form action={saveProfileAction} className="mt-6 space-y-4">
           <label className="block text-sm font-bold text-slate-200" htmlFor="nickname">
             Nickname

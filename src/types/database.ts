@@ -9,20 +9,20 @@ export type Database = {
         Row: {
           id: string;
           nickname: string;
-          email: string | null;
+          email: string;
           is_admin: boolean;
           created_at: string;
         };
         Insert: {
-          id: string;
+          id?: string;
           nickname: string;
-          email?: string | null;
+          email: string;
           is_admin?: boolean;
           created_at?: string;
         };
         Update: {
           nickname?: string;
-          email?: string | null;
+          email?: string;
           is_admin?: boolean;
         };
         Relationships: [];
@@ -69,7 +69,7 @@ export type Database = {
             foreignKeyName: "pick_submissions_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           }
         ];
@@ -168,7 +168,7 @@ export type Database = {
             foreignKeyName: "pick_scores_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           }
         ];
@@ -201,6 +201,7 @@ export type Database = {
         Args: {
           submitted_picks: Json;
           locked_at: string;
+          profile_id: string;
         };
         Returns: string;
       };

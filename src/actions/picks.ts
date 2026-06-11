@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { getAppSession } from "@/lib/auth/session";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getPicksLockedAt, isPicksLocked } from "@/lib/picks/deadline";
 import { validatePickShape } from "@/lib/picks/validation";
 import type { PickInput } from "@/types/picks";
@@ -12,16 +13,14 @@ export type SubmitPicksResult = {
 };
 
 export async function submitPicksAction(picks: PickInput[]): Promise<SubmitPicksResult> {
-  const supabase = createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const session = getAppSession();
 
-  if (!user) {
+  if (!session) {
     return { ok: false, message: "Faca login para enviar seus picks." };
   }
 
-  const { data: profile } = await supabase.from("profiles").select("id").eq("id", user.id).maybeSingle();
+  const supabase = createAdminClient();
+  const { data: profile } = await supabase.from("profiles").select("id").eq("id", session.userId).maybeSingle();
 
   if (!profile) {
     return { ok: false, message: "Crie um nickname antes de enviar seus picks." };
@@ -34,7 +33,7 @@ export async function submitPicksAction(picks: PickInput[]): Promise<SubmitPicks
   const { data: existingSubmission } = await supabase
     .from("pick_submissions")
     .select("id")
-    .eq("user_id", user.id)
+    .eq("user_id", session.userId)
     .maybeSingle();
 
   if (existingSubmission) {
@@ -59,7 +58,8 @@ export async function submitPicksAction(picks: PickInput[]): Promise<SubmitPicks
 
   const { error } = await supabase.rpc("submit_user_picks", {
     submitted_picks: picks,
-    locked_at: getPicksLockedAt().toISOString()
+    locked_at: getPicksLockedAt().toISOString(),
+    profile_id: session.userId
   } as never);
 
   if (error) {

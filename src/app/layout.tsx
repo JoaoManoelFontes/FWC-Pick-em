@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
-import { createClient } from "@/lib/supabase/server";
-import { hasSupabaseEnv } from "@/lib/supabase/env";
 import { signOutAction } from "@/actions/auth";
+import { getAppSession } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
   title: "Bolao Pick'em Copa",
@@ -11,10 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = hasSupabaseEnv() ? createClient() : null;
-  const {
-    data: { user }
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const session = getAppSession();
 
   return (
     <html lang="pt-BR">
@@ -31,7 +27,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <Link className="rounded-xl px-3 py-2 text-slate-500" href="/ranking">
                 Ranking
               </Link>
-              {user ? (
+              {session ? (
                 <>
                   <Link className="rounded-xl px-3 py-2 hover:bg-slate-800 hover:text-sky-300" href="/profile">
                     Perfil
