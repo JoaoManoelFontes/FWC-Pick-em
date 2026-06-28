@@ -24,7 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <Link className="rounded-xl px-3 py-2 hover:bg-slate-800 hover:text-sky-300" href="/picks">
                 Picks
               </Link>
-              <Link className="rounded-xl px-3 py-2 text-slate-500" href="/ranking">
+              <Link className="rounded-xl px-3 py-2 hover:bg-slate-800 hover:text-sky-300" href="/ranking">
                 Ranking
               </Link>
               {session ? (
