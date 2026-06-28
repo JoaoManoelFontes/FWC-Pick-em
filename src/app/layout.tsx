@@ -22,7 +22,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </Link>
             <nav className="flex items-center gap-2 text-sm text-slate-300">
               <Link className="rounded-xl px-3 py-2 hover:bg-slate-800 hover:text-sky-300" href="/picks">
-                Picks
+                Fase de grupos
+              </Link>
+              <Link className="rounded-xl px-3 py-2 hover:bg-slate-800 hover:text-sky-300" href="/mata-mata">
+                Mata-mata
               </Link>
               <Link className="rounded-xl px-3 py-2 hover:bg-slate-800 hover:text-sky-300" href="/ranking">
                 Ranking

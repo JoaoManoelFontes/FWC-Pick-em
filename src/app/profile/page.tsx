@@ -1,17 +1,19 @@
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { saveProfileAction } from "@/actions/profile";
+import { getSafeNextRoute } from "@/lib/auth/redirects";
 import { getAppSession } from "@/lib/auth/session";
 
 export default async function ProfilePage({
   searchParams
 }: {
-  searchParams: { error?: string; saved?: string };
+  searchParams: { error?: string; saved?: string; next?: string };
 }) {
   const session = getAppSession();
+  const next = getSafeNextRoute(searchParams.next, "/picks");
 
   if (!session) {
-    redirect("/login");
+    redirect(`/login?next=${encodeURIComponent(next)}`);
   }
 
   const supabase = createAdminClient();
@@ -26,6 +28,7 @@ export default async function ProfilePage({
           Esse sera seu nome publico no bolao{profile?.email ? ` (${profile.email})` : ""}.
         </p>
         <form action={saveProfileAction} className="mt-6 space-y-4">
+          <input type="hidden" name="next" value={next} />
           <label className="block text-sm font-bold text-slate-200" htmlFor="nickname">
             Nickname
           </label>

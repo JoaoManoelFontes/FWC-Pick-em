@@ -1,4 +1,5 @@
 const DEFAULT_LOCKED_AT = "2026-06-11T18:00:00.000Z";
+const DEFAULT_KNOCKOUT_LOCKED_AT = "2026-06-28T19:00:00.000Z";
 
 export function getPicksLockedAt(): Date {
   const value = process.env.PICKS_LOCKED_AT ?? DEFAULT_LOCKED_AT;
@@ -13,6 +14,21 @@ export function getPicksLockedAt(): Date {
 
 export function isPicksLocked(now = new Date()): boolean {
   return now.getTime() >= getPicksLockedAt().getTime();
+}
+
+export function getKnockoutPicksLockedAt(): Date {
+  const value = process.env.KNOCKOUT_PICKS_LOCKED_AT ?? DEFAULT_KNOCKOUT_LOCKED_AT;
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return new Date(DEFAULT_KNOCKOUT_LOCKED_AT);
+  }
+
+  return date;
+}
+
+export function isKnockoutPicksLocked(now = new Date()): boolean {
+  return now.getTime() >= getKnockoutPicksLockedAt().getTime();
 }
 
 export function formatBrasiliaDeadline(date = getPicksLockedAt()): string {

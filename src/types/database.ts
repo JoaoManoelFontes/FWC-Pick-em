@@ -1,3 +1,4 @@
+import type { KnockoutBracketSide, KnockoutRound, KnockoutSlotName } from "./knockout";
 import type { PickType } from "./picks";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
@@ -173,6 +174,135 @@ export type Database = {
           }
         ];
       };
+      knockout_matches: {
+        Row: {
+          id: string;
+          code: string;
+          fifa_match_number: number | null;
+          round: KnockoutRound;
+          bracket_side: KnockoutBracketSide;
+          display_order: number;
+          home_team_id: string | null;
+          away_team_id: string | null;
+          home_source_match_code: string | null;
+          away_source_match_code: string | null;
+          next_match_code: string | null;
+          next_slot: KnockoutSlotName | null;
+          points: number;
+          starts_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          fifa_match_number?: number | null;
+          round: KnockoutRound;
+          bracket_side: KnockoutBracketSide;
+          display_order: number;
+          home_team_id?: string | null;
+          away_team_id?: string | null;
+          home_source_match_code?: string | null;
+          away_source_match_code?: string | null;
+          next_match_code?: string | null;
+          next_slot?: KnockoutSlotName | null;
+          points: number;
+          starts_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          fifa_match_number?: number | null;
+          round?: KnockoutRound;
+          bracket_side?: KnockoutBracketSide;
+          display_order?: number;
+          home_team_id?: string | null;
+          away_team_id?: string | null;
+          home_source_match_code?: string | null;
+          away_source_match_code?: string | null;
+          next_match_code?: string | null;
+          next_slot?: KnockoutSlotName | null;
+          points?: number;
+          starts_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      knockout_submissions: {
+        Row: {
+          id: string;
+          user_id: string;
+          submitted_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          submitted_at?: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      knockout_picks: {
+        Row: {
+          id: string;
+          submission_id: string;
+          match_id: string;
+          picked_team_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          submission_id: string;
+          match_id: string;
+          picked_team_id: string;
+          created_at?: string;
+        };
+        Update: never;
+        Relationships: [];
+      };
+      knockout_match_results: {
+        Row: {
+          match_id: string;
+          winner_team_id: string | null;
+          completed: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          match_id: string;
+          winner_team_id?: string | null;
+          completed?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          winner_team_id?: string | null;
+          completed?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      knockout_pick_scores: {
+        Row: {
+          pick_id: string;
+          user_id: string;
+          is_correct: boolean;
+          points: number;
+          calculated_at: string;
+        };
+        Insert: {
+          pick_id: string;
+          user_id: string;
+          is_correct?: boolean;
+          points?: number;
+          calculated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          is_correct?: boolean;
+          points?: number;
+          calculated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       ranking_scores: {
@@ -198,6 +328,14 @@ export type Database = {
         }[];
       };
       submit_user_picks: {
+        Args: {
+          submitted_picks: Json;
+          locked_at: string;
+          profile_id: string;
+        };
+        Returns: string;
+      };
+      submit_knockout_picks: {
         Args: {
           submitted_picks: Json;
           locked_at: string;

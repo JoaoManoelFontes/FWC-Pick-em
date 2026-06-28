@@ -25,7 +25,7 @@ export default async function PicksPage() {
   const session = getAppSession();
 
   if (!session) {
-    redirect("/login");
+    redirect("/login?next=/picks");
   }
 
   const supabase = createAdminClient();
@@ -37,7 +37,7 @@ export default async function PicksPage() {
   const profile = profileData as ProfileRow | null;
 
   if (!profile) {
-    redirect("/profile");
+    redirect("/profile?next=/picks");
   }
 
   const { data: teamsData } = await supabase.from("teams").select("id,name,code,group_name,flag_emoji").order("group_name").order("name");
