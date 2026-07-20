@@ -316,9 +316,46 @@ export type Database = {
         };
         Relationships: [];
       };
+      knockout_ranking_scores: {
+        Row: {
+          user_id: string;
+          nickname: string;
+          submitted_at: string;
+          knockout_points: number;
+          correct_knockout_picks: number;
+          scored_knockout_picks: number;
+        };
+        Relationships: [];
+      };
+      combined_ranking_scores: {
+        Row: {
+          user_id: string;
+          nickname: string;
+          group_points: number;
+          knockout_points: number;
+          total_points: number;
+          correct_group_picks: number;
+          correct_knockout_picks: number;
+          scored_group_picks: number;
+          scored_knockout_picks: number;
+          group_submitted_at: string | null;
+          knockout_submitted_at: string | null;
+          weighted_score: number;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       recalculate_pick_scores: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          total_picks_scored: number;
+          total_correct: number;
+          total_points: number;
+          recalculated_at: string;
+        }[];
+      };
+      recalculate_knockout_pick_scores: {
         Args: Record<PropertyKey, never>;
         Returns: {
           total_picks_scored: number;

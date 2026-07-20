@@ -28,7 +28,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 Mata-mata
               </Link>
               <Link className="rounded-xl px-3 py-2 hover:bg-slate-800 hover:text-sky-300" href="/ranking">
-                Ranking
+                Ranking geral
+              </Link>
+              <Link className="rounded-xl px-3 py-2 hover:bg-slate-800 hover:text-sky-300" href="/ranking/mata-mata">
+                Ranking mata-mata
               </Link>
               {session ? (
                 <>
